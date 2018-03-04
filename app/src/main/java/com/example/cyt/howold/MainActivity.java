@@ -5,13 +5,20 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.facepp.error.FaceppParseException;
+
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -25,6 +32,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Bitmap mPhotoImg;
 
     private String mCurrentPhotoStr;
+
+    public MainActivity() {
+        handler = new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+            }
+        };
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +101,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    public static final int MSG_SUCCESS = 0x1111;
+    public static final int MSG_ERROR = 0x1112;
+
+    private  Handler handler = new Handler()
+    {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case MSG_SUCCESS:
+                    mWaiting.setVisibility(View.GONE);
+                    JSONObject rs = (JSONObject) msg.obj;
+
+                    prepareRsBitmap(rs);
+
+                    imageView.setImageBitmap(mPhotoImg);
+
+                    break;
+                case MSG_ERROR:
+                    mWaiting.setVisibility(View.GONE);
+                    String errorMsg = (String) msg.obj;
+                    if (TextUtils.isEmpty(errorMsg)){
+                        mTip.setText("Error.");
+                    }else {
+                        mTip.setText(errorMsg);
+                    }
+                    break;
+            }
+            super.handleMessage(msg);
+        }
+    };
+
+    private void prepareRsBitmap(JSONObject rs) {
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()){
@@ -94,6 +144,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivityForResult(intent,PICK_CODE);
                 break;
             case R.id.btn_detect:
+
+                mWaiting.setVisibility(View.VISIBLE);
+                FaceppDetect.detect(mPhotoImg, new FaceppDetect.CallBack() {
+                    @Override
+                    public void success(JSONObject result) {
+                        Message msg = Message.obtain();
+                        msg.what = MSG_SUCCESS;
+                        msg.obj = result;
+                        handler.sendMessage(msg);
+
+                    }
+
+                    @Override
+                    public void error(FaceppParseException exception) {
+                        Message msg = Message.obtain();
+                        msg.what = MSG_ERROR;
+                        msg.obj = exception.getErrorMessage();
+                        handler.sendMessage(msg);
+
+                    }
+                });
                 break;
         }
 
