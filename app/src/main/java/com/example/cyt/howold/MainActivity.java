@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
@@ -18,6 +20,8 @@ import android.widget.TextView;
 
 import com.facepp.error.FaceppParseException;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -32,6 +36,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Bitmap mPhotoImg;
 
     private String mCurrentPhotoStr;
+
+    private Paint mPaint;
 
     public MainActivity() {
         handler = new Handler(){
@@ -50,6 +56,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initViews();
         
         initEvents();
+
+        mPaint = new Paint();
     }
 
     private void initEvents() {
@@ -133,6 +141,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
 
     private void prepareRsBitmap(JSONObject rs) {
+
+        Bitmap bitmap = Bitmap.createBitmap(mPhotoImg.getWidth(),mPhotoImg.getHeight(),mPhotoImg.getConfig());
+        Canvas canvas = new Canvas(bitmap);
+
+        try {
+            JSONArray faces = rs.getJSONArray("face");
+            int facecount = faces.length();
+            mTip.setText("find:"+facecount);
+            for (int i = 0; i < facecount ; i++) {
+                JSONObject face = faces.getJSONObject(i);
+                JSONObject posObj = face.getJSONObject("position");
+
+                float x = (float) posObj.getJSONObject("center").getDouble("x");
+                float y = (float) posObj.getJSONObject("center").getDouble("y");
+
+                float w = (float) posObj.getDouble("width");
+                float h = (float) posObj.getDouble("height");
+
+                x = x/100*bitmap.getWidth();
+                y = y/100*bitmap.getHeight();
+
+                w = w/100*bitmap.getWidth();
+                h = h/100*bitmap.getHeight();
+
+                mPaint.setColor(0xffffffff);
+                mPaint.setStrokeWidth(3);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
