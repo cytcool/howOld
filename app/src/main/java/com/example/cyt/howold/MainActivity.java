@@ -144,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Bitmap bitmap = Bitmap.createBitmap(mPhotoImg.getWidth(),mPhotoImg.getHeight(),mPhotoImg.getConfig());
         Canvas canvas = new Canvas(bitmap);
+        canvas.drawBitmap(mPhotoImg,0,0,null);
 
         try {
             JSONArray faces = rs.getJSONArray("face");
@@ -167,6 +168,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 mPaint.setColor(0xffffffff);
                 mPaint.setStrokeWidth(3);
+
+                canvas.drawLine(x-w/2,y-h/2,x-w/2,y+h/2,mPaint);
+                canvas.drawLine(x-w/2,y-h/2,x+w/2,y-h/2,mPaint);
+                canvas.drawLine(x+w/2,y-h/2,x+w/2,y+h/2,mPaint);
+                canvas.drawLine(x-w/2,y+h/2,x+w/2,y+h/2,mPaint);
+
+                mPhotoImg = bitmap;
             }
         } catch (JSONException e) {
             e.printStackTrace();
