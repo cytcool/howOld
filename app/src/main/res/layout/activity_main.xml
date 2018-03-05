@@ -65,6 +65,18 @@
             android:layout_gravity="center"
             />
 
+        <TextView
+            android:id="@+id/tv_age_and_gendar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/male"
+            android:background="@drawable/hint"
+            android:visibility="invisible"
+            android:textSize="22sp"
+            android:textColor="#ffff00ff"
+            android:gravity="center"
+            />
+
     </FrameLayout>
 
 </RelativeLayout>

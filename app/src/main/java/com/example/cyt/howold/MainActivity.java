@@ -172,7 +172,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 canvas.drawLine(x-w/2,y-h/2,x-w/2,y+h/2,mPaint);
                 canvas.drawLine(x-w/2,y-h/2,x+w/2,y-h/2,mPaint);
                 canvas.drawLine(x+w/2,y-h/2,x+w/2,y+h/2,mPaint);
-                canvas.drawLine(x-w/2,y+h/2,x+w/2,y+h/2,mPaint);
+
+                int age = face.getJSONObject("attribute").getJSONObject("age").getInt("value");
+                String gendar = face.getJSONObject("attribute").getJSONObject("gendar").getString("value");
+
+                Bitmap ageBitmap = buildAgeBitmap(age,"male".equals(gendar));
 
                 mPhotoImg = bitmap;
             }
@@ -180,6 +184,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             e.printStackTrace();
         }
 
+    }
+
+    private Bitmap buildAgeBitmap(int age, boolean isMale) {
+        TextView tv = mWaiting.findViewById(R.id.tv_age_and_gendar);
+        tv.setText(age + "");
+        if (isMale){
+            tv.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.male),null,null,null);
+        }else {
+            tv.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.female),null,null,null);
+        }
+
+        tv.setDrawingCacheEnabled(true);
+        Bitmap bitmap = Bitmap.createBitmap(tv.getDrawingCache());
+        tv.destroyDrawingCache();
+
+        return bitmap;
     }
 
     @Override
