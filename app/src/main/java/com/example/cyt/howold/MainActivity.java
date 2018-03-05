@@ -178,6 +178,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 Bitmap ageBitmap = buildAgeBitmap(age,"male".equals(gendar));
 
+                int ageWidth = ageBitmap.getWidth();
+                int ageHeight = ageBitmap.getHeight();
+
+                if (bitmap.getWidth()<imageView.getWidth() && bitmap.getHeight() < imageView.getHeight()){
+                    float radio = Math.max(bitmap.getWidth()*1.0f/imageView.getWidth(),bitmap.getHeight()*1.0f/imageView.getHeight());
+                    ageBitmap = Bitmap.createScaledBitmap(ageBitmap,(int)(ageWidth*radio),(int)(ageHeight*radio),false);
+
+                    canvas.drawBitmap(ageBitmap,x-ageBitmap.getWidth()/2,y-h/2-ageBitmap.getHeight(),null);
+
+                }
+
                 mPhotoImg = bitmap;
             }
         } catch (JSONException e) {
@@ -211,8 +222,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivityForResult(intent,PICK_CODE);
                 break;
             case R.id.btn_detect:
-
                 mWaiting.setVisibility(View.VISIBLE);
+                if (mCurrentPhotoStr != null && !mCurrentPhotoStr.equals("")){
+                    resizePhoto();
+                }else {
+                    mPhotoImg = BitmapFactory.decodeResource(getResources(),R.drawable.t4);
+                }
+
                 FaceppDetect.detect(mPhotoImg, new FaceppDetect.CallBack() {
                     @Override
                     public void success(JSONObject result) {
